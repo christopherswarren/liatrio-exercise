@@ -23,7 +23,7 @@ app.get("/time",function(request,response)
 });
 
 app.listen(port, function () {
-    var datetime = new Date();
-    var message = "Server running on Port:- " + port + "Started at :- " + datetime;
+    let datetime = new Date();
+    let message = "Server running on Port:- " + port + "Started at :- " + datetime;
     console.log(message);
 });
