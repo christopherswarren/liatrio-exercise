@@ -22,8 +22,10 @@ response.json(
 );
 });
 
-app.listen(port, function () {
+const server = app.listen(port, function () {
   let datetime = new Date();
-  let message = "Server running on Port:- " + port + "Started at :- " + datetime;
+  let message = "Server running on Port:- " + port + " Started at :- " + datetime;
   console.log(message);
 });
+
+module.exports = server;
