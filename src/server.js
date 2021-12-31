@@ -3,6 +3,11 @@ let moment = require('moment');
 let app = express();
 let port = process.env.port || 8080;
 
+app.use((req,res, next) => {
+  console.log(req.url + " Requested at " + new Date());
+  next();
+})
+
 app.get("/",function(request,response)
 {
   response.json(
@@ -10,16 +15,16 @@ app.get("/",function(request,response)
       "message": "No root endpoint defined. Why not GET the /time ?"
     }
   )
-})
+});
 
 app.get("/time",function(request,response)
 {
-response.json(
-  {
-    "message": "Automate all the things!",
-    "timestamp": moment().unix()
-  }
-);
+  response.json(
+    {
+      "message": "Automate all the things!",
+      "timestamp": moment().unix()
+    }
+  )
 });
 
 const server = app.listen(port, function () {
