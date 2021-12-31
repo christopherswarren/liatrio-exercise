@@ -60,5 +60,3 @@ The <font style="color:teal">release</font> stage uses a small alpine image as i
 - The required node.js runtime package
 - The pre-installed node_modules
 - The minified server.js file from the webpack process
-
-## Docker compose
