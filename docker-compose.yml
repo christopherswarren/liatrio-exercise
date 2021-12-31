@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+
+  web:
+    image: whoha4242/liatrio-exercise
+    build: .
+    container_name: time_api
+    ports:
+      - 80:8080
