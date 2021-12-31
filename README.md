@@ -12,6 +12,8 @@ Using Docker<br>
 
 OR
 
+- `docker compose up`
+
 Using node.js<br>
 - `npm install`<br>
 - `npm test`<br>
