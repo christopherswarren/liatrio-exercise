@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image for ${{env.imagename}}:${{env.tag}}
+    - name: Build the Docker image for ${{env.imagename}}:1.0.$GITHUB_RUN_ID
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
     
     - name: Add latest tag
