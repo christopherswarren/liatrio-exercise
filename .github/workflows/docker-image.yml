@@ -9,6 +9,9 @@ on:
 env:
   imagename: whoha4242/liatrio-exercise
   tag: 1.0.$GITHUB_RUN_ID
+  dockeruser: whoha4242
+  # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
+  dockerpwd: ${{secrets.dockerpassword}}
 
 jobs:
 
@@ -22,6 +25,8 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
     - name: Add latest tag
       run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
+    - name: Docker Login
+      run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
     - name: Push the Docker image versioned tag
       run: docker push ${{env.imagename}}:${{env.tag}}
     - name: Push the Docker image latest tag
