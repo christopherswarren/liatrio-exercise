@@ -15,7 +15,7 @@ env:
 
 jobs:
 
-  build_push:
+  build_test_push:
 
     runs-on: ubuntu-latest
 
@@ -25,16 +25,16 @@ jobs:
       run: npm install && npm test
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
-    
-    - name: Add latest tag
-      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
-      run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
-    - name: Docker Login
-      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
-      run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
-    - name: Push the Docker image versioned tag
-      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
-      run: docker push ${{env.imagename}}:${{env.tag}}
-    - name: Push the Docker image latest tag
-      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
-      run: docker push ${{env.imagename}}:latest
+
+    # Tag and push image if main branch run
+    if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+      - name: Add latest tag
+        run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
+      - name: Docker Login
+        run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
+      - name: Push the Docker image versioned tag
+        run: docker push ${{env.imagename}}:${{env.tag}}
+      - name: Push the Docker image latest tag
+        run: docker push ${{env.imagename}}:latest
+
+    # Create
