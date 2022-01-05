@@ -8,7 +8,7 @@ on:
 
 env:
   imagename: whoha4242/liatrio-exercise
-  tag: 1.0.$(date +%s)
+  tag: 1.0.$GITHUB_ACTION
 
 jobs:
 
