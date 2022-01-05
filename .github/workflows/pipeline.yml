@@ -27,7 +27,7 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
 
     # Tag and push image if main branch run
-    if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+    - if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       - name: Add latest tag
         run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
       - name: Docker Login
