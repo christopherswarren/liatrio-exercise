@@ -1,0 +1,38 @@
+name: Liatrio Exercise
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  imagename: whoha4242/liatrio-exercise
+  tag: 1.0.$GITHUB_RUN_ID
+  dockeruser: whoha4242
+  # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
+  dockerpwd: ${{secrets.dockerpassword}}
+
+jobs:
+
+  build_push:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image for ${{env.imagename}}:${{env.tag}}
+      run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
+    
+    - name: Add latest tag
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+      run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
+    - name: Docker Login
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+      run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
+    - name: Push the Docker image versioned tag
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+      run: docker push ${{env.imagename}}:${{env.tag}}
+    - name: Push the Docker image latest tag
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
+      run: docker push ${{env.imagename}}:latest
