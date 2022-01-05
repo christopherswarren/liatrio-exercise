@@ -25,6 +25,7 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
     
     - name: Add latest tag
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
     - name: Docker Login
       if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
