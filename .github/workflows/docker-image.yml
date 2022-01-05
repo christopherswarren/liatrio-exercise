@@ -27,11 +27,11 @@ jobs:
     - name: Add latest tag
       run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
     - name: Docker Login
-      if: ${{and(github.event_name != 'pull_request', github.ref != 'refs/heads/main'}}
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
     - name: Push the Docker image versioned tag
-      if: ${{and(github.event_name != 'pull_request', github.ref != 'refs/heads/main'}}
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       run: docker push ${{env.imagename}}:${{env.tag}}
     - name: Push the Docker image latest tag
-      if: ${{and(github.event_name != 'pull_request', github.ref != 'refs/heads/main'}}
+      if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       run: docker push ${{env.imagename}}:latest
