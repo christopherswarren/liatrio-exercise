@@ -1,5 +1,11 @@
 provider "azurerm" {
   features {}
+
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
+
 }
 
 resource "azurerm_resource_group" "default" {
@@ -25,8 +31,8 @@ resource "azurerm_kubernetes_cluster" "default" {
   }
 
   service_principal {
-    client_id     = var.appId
-    client_secret = var.password
+    client_id     = var.client_id
+    client_secret = var.client_secret
   }
 
   role_based_access_control {
