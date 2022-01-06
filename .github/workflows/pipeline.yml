@@ -40,4 +40,8 @@ jobs:
       if: ${{github.event_name != 'pull_request' && github.ref != 'refs/heads/main'}}
       run: docker push ${{env.imagename}}:latest
 
-    # Create
+    create_environment:
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
