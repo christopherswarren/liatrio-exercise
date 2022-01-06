@@ -13,7 +13,7 @@ env:
   # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
   dockerpwd: ${{secrets.dockerpassword}}
   azure-rg: csw-liatrio-exercise-rg
-  aks-cluster: 
+  aks-cluster: csw-liatrio-exercise-aks1
 
 jobs:
 
@@ -43,13 +43,14 @@ jobs:
       run: docker push ${{env.imagename}}:latest
 
   deploy:
+    needs: build_test_push
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Get AKS Credentials
-      run: az aks get-credentials --resource-group ${{env.azure-rg}}) --name ${{env.aks-cluster}}
+      run: az aks get-credentials --resource-group ${{env.azure-rg}} --name ${{env.aks-cluster}}
     - name: Add helm repo
       run: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
     - name: Install nginx ingress
