@@ -60,3 +60,33 @@ The <font style="color:teal">release</font> stage uses a small alpine image as i
 - The required node.js runtime package
 - The pre-installed node_modules
 - The minified server.js file from the webpack process
+
+## Terraform Infrastructure as Code
+
+The included `/terraform/aks-cluster.tf` file (and its several associated terraform config files) is used to create an AKS cluster in Azure as well as remove it when finished.
+
+You must have terraform cli installed on your system to use locally
+
+**Usage**
+
+Local:
+```
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+Then to remove resources when finished:
+```
+terraform destroy
+```
+
+Terraform Cloud
+
+1. Fork this repo to your github account
+1. Create an organization at app.terraform.io
+1. Within Terraform cloud, link to your new fork of this repo using the GitHub selection
+1. Select the `/terraform` folder as the working folder for Terraform cloud
+1. Create variables in your TF Cloud Org for each of the variables included in the `variables.tf` and `terraform.tfvars` files
+1. Start a plan from TF Cloud
