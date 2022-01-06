@@ -6,7 +6,7 @@ The included terraform configuration will create:
 
 It requires:
 1. An Azure Subscription
-1. An SPN configured in that Subscription
+1. An SPN configured in that Subscription (follow [this guide](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret) for details)
 1. Those SPN credentials to be supplied in the `terraform.tfvars` file included here in these fields
 - appId
 - password
