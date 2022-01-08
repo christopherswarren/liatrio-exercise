@@ -1,6 +1,17 @@
 name: "Terraform Destroy"
 
 on: workflow_dispatch
+  inputs:
+    confirm:
+      type: choice
+      required: true
+      description: Do you wish to run terraform destroy?
+      options: 
+      - yes
+      - no
+    message:
+      description: Only "CONFIRM" will result in running this destroy plan
+      required: true
 
 jobs:
   terraform:
@@ -21,4 +32,5 @@ jobs:
         run: terraform init
       - name: Terraform Destroy
         working-directory: ./terraform
+        if: github.events.inputs.confirm == 'yes' && github.events.inputs.message == 'CONFIRM'
         run: terraform destroy -auto-approve
