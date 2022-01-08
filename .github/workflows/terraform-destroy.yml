@@ -8,8 +8,9 @@ on:
         required: true
         description: Do you wish to run terraform destroy?
         options: 
-        - 'yes'
+        - ''
         - 'no'
+        - 'yes'
       message:
         description: Only "CONFIRM" will result in running this destroy plan
         required: true
