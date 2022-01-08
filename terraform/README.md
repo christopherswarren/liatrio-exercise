@@ -21,6 +21,8 @@ You may also choose to use Terraform Cloud to manage your IaC. In that case you 
 
   ![terraform cloud variables](https://github.com/whoha4242/liatrio-exercise/raw/94c71fb9cc1d93d9f8a341dc1668fd36d74e0653/attachments/tfvars.png)
 
+_**NOTE** These values are only examples. Yours will vary with your Azure Subscription and naming choices, etc_
+
 Key|Description|Value|Category
 ---|---|---|---
 rg|Azure Resource Group|csw-liatrio-exercise-rg|terraform
