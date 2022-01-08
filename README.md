@@ -48,6 +48,14 @@ Using Terraform Cloud you'll also need to configure your variables in TF Cloud a
 
 You'll need a [Docker Hub]() account to run the demo pipeline as configured. You could of course use your own public or private container registry, but that would entail many other changes. Just store your docker user in the pipeline.yml file as `dockeruser` and your docker password in the GitHub Actions Secret as `DOCKERPASSWORD` as shown above.
 
+# Demo Usage
+
+Once you've met the above prerequisites, you should be able to simply run the GitHub workflow defined in the `pipeline.yml` file. You may do this by committing code to the main branch, or simply by manually kicking off the workflow.
+
+Once the pipeline run is complete, it will let you know whether it was able to validate the deployment. If successful, you can manually validate by following the generated link in the validate content step
+
+![Follow this link]()
+
 # Components
 
 ## API app
