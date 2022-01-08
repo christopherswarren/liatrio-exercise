@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      extip: ${{ steps.wait_on_api.outputs.externalip }}
+      extip: ${{ steps.get_ext_ip.outputs.externalip }}
 
     steps:
       - uses: actions/checkout@v2
@@ -94,7 +94,6 @@ jobs:
       - name: Apply Deployment
         run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
       - name: Wait for API to come online
-        id: wait_on_api
         timeout-minutes: 1
         run: |
           chmod +x check-endpoint.sh
@@ -102,6 +101,7 @@ jobs:
       - name: Apply Ingress
         run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
       - name: Get External IP
+        id: get_ext_ip
         run: |
           kubectl --namespace ingress-basic get services -o wide
           $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
