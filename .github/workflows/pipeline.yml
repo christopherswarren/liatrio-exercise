@@ -61,7 +61,8 @@ jobs:
       - name: Change to Terraform Directory
         run: |
           pwd
-          cd terraform
+          ls -al
+          cd ./terraform
       - name: Terraform Init
         run: terraform init
       - name: Terraform Format
