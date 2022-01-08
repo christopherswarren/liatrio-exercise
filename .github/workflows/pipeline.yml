@@ -125,5 +125,6 @@ jobs:
         }
         else {
           Write-Host "Deployment validation failed. We got back this response: [$($result.message)]" -foregroundcolor black -backgroundcolor darkred
+          throw "Marking validation job as failed"
         }
       shell: pwsh
