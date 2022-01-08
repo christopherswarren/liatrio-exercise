@@ -20,3 +20,13 @@ _**NOTE** Your values will vary_
 You may also choose to use Terraform Cloud to manage your IaC. In that case you will need to configure variables in your Terraform Cloud workspace for all variables found in `terraform.tfvars` as shown below
 
   ![terraform cloud variables](https://github.com/whoha4242/liatrio-exercise/raw/94c71fb9cc1d93d9f8a341dc1668fd36d74e0653/attachments/tfvars.png)
+
+Key|Description|Value|Category
+---|---|---|---
+rg|Azure Resource Group|csw-liatrio-exercise-rg|terraform
+aks-cluster|Azure Kubernetes Services Cluster Name|csw-liatrio-exercise-aks1|terraform
+dns-prefix|AKS DNS Prefix|cswliatrioexerciseaks1|terraform
+subscription_id|Azure Subscription ID|2b71fc73-f30a-40e5-a1c1-7d4db96b080d|terraform
+tenant_id|Azure Tenant ID|7500411e-6146-4c36-8612-6f9390df3440|terraform
+client_id|Azure SPN AppId|Sensitive - write only|terraform
+client_secret|Azure SPN Password (client_id)|Sensitive - write only|terraform

@@ -1,6 +1,6 @@
 
 # liatrio-exercise
-This repo contains (or should soon contain) a simple demo api, along with code to run it in a container and deploy that as a workload to a Kubernetes cluster. It will also create the required resources in the cloud on which to run.
+This repo contains a simple demo api, along with code to run it in a container and deploy that as a workload to a Kubernetes cluster. It will also create the required resources in the Azure cloud on which to run.
 
 # Demo Prerequisites
 
@@ -18,15 +18,35 @@ az account list
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/SUBSCRIPTION_ID"
 ```
 
+The SPN create command will output a list of values similar to this:
 
+```json
+{
+  "appId": "00000000-0000-0000-0000-000000000000",
+  "displayName": "azure-cli-2017-06-05-10-41-15",
+  "name": "http://azure-cli-2017-06-05-10-41-15",
+  "password": "0000-0000-0000-0000-000000000000",
+  "tenant": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+You must then store the appId in your GitHub Secrets as `AZ_CLIENT_ID` and the password as `AZ_CLIENT_SECRET`
+
+![GitHub Secrets](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/githubsecrets.png)
 
 ## 2. Terraform Cloud Org and Workspace (optional)
 
 You may choose to simply run the terraform locally, or set up cloud storage to manage state files from cloud hosted CICD agents/runners, but I chose to solve that by using [Terraform Cloud](https://app.terraform.io/).
 
-To do so, you simply need an account, and a workspace configured for API triggers. You then need to generate a **Team API Token** and store it in a secret in GitHub Actions.
+To do so, you simply need an account, and a workspace configured for API triggers. You then need to generate a **Team API Token** and store it in a secret in GitHub Actions as `TF_API_TOKEN` as shown above.
 
+![TF Cloud Team Token](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/TFCloudTeamToken.png)
 
+Using Terraform Cloud you'll also need to configure your variables in TF Cloud as documented in the included [Terraform README](terraform/readme.md)
+
+## 3. Docker Hub Account
+
+You'll need a [Docker Hub]() account to run the demo pipeline as configured. You could of course use your own public or private container registry, but that would entail many other changes. Just store your docker user in the pipeline.yml file as `dockeruser` and your docker password in the GitHub Actions Secret as `DOCKERPASSWORD` as shown above.
 
 # Components
 
