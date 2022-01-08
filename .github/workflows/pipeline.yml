@@ -53,25 +53,25 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      - name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init
-      - name: Terraform Format
-        working-directory: ./terraform
-        run: terraform fmt -check
-      - name: Terraform Plan
-        working-directory: ./terraform
-        run: terraform plan
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        working-directory: ./terraform
-        run: terraform apply -auto-approve
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+    - name: Terraform Format
+      working-directory: ./terraform
+      run: terraform fmt -check
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      working-directory: ./terraform
+      run: terraform apply -auto-approve
 
   deploy:
     needs: [build_test_push,terraform]
@@ -82,27 +82,27 @@ jobs:
       extip: ${{ steps.wait_on_api.outputs.externalip }}
 
       steps:
-    - uses: actions/checkout@v2
-    - name: AZ Login
-      run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
-    - name: Get AKS Credentials
-      run: az aks get-credentials --resource-group ${{env.azure-rg}} --name ${{env.aks-cluster}}
-    - name: Add helm repo
-      run: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-    - name: Install nginx ingress
-      run: helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --version 4.0.13 --namespace ingress-basic --create-namespace --set controller.replicaCount=2 --set controller.nodeSelector."kubernetes\.io/os"=linux
-    - name: Apply Deployment
-      run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
-    - name: Wait for API to come online
-      id: wait_on_api
-      timeout-minutes: 1
-      run: |
-        chmod +x check-endpoint.sh
-        ./check-endpoint.sh time-api-lb
-    - name: Apply Ingress
-      run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
-    - name: Get External IP
-      run: kubectl --namespace ingress-basic get services -o wide
+      - uses: actions/checkout@v2
+      - name: AZ Login
+        run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
+      - name: Get AKS Credentials
+        run: az aks get-credentials --resource-group ${{env.azure-rg}} --name ${{env.aks-cluster}}
+      - name: Add helm repo
+        run: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      - name: Install nginx ingress
+        run: helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --version 4.0.13 --namespace ingress-basic --create-namespace --set controller.replicaCount=2 --set controller.nodeSelector."kubernetes\.io/os"=linux
+      - name: Apply Deployment
+        run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
+      - name: Wait for API to come online
+        id: wait_on_api
+        timeout-minutes: 1
+        run: |
+          chmod +x check-endpoint.sh
+          ./check-endpoint.sh time-api-lb
+      - name: Apply Ingress
+        run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
+      - name: Get External IP
+        run: kubectl --namespace ingress-basic get services -o wide
 
   validate:
     needs: [deploy]
@@ -110,5 +110,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-  - name: test
-    run: echo ${{needs.deploy.outputs.extip}}
+    - name: test
+      run: echo ${{needs.deploy.outputs.extip}}
