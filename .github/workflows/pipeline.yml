@@ -81,7 +81,7 @@ jobs:
     outputs:
       extip: ${{ steps.wait_on_api.outputs.externalip }}
 
-      steps:
+    steps:
       - uses: actions/checkout@v2
       - name: AZ Login
         run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
