@@ -2,6 +2,34 @@
 # liatrio-exercise
 This repo contains (or should soon contain) a simple demo api, along with code to run it in a container and deploy that as a workload to a Kubernetes cluster. It will also create the required resources in the cloud on which to run.
 
+# Demo Prerequisites
+
+## 1. Azure Subscription
+
+You'll need an Azure Subscription to use the `azurerm` terraform provider included in this demo. Please see [this link](https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription) for more details.
+
+You must then retrieve your azure subscription ID, and generate a service principal.
+
+```
+az login
+
+az account list
+
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/SUBSCRIPTION_ID"
+```
+
+
+
+## 2. Terraform Cloud Org and Workspace (optional)
+
+You may choose to simply run the terraform locally, or set up cloud storage to manage state files from cloud hosted CICD agents/runners, but I chose to solve that by using [Terraform Cloud](https://app.terraform.io/).
+
+To do so, you simply need an account, and a workspace configured for API triggers. You then need to generate a **Team API Token** and store it in a secret in GitHub Actions.
+
+
+
+# Components
+
 ## API app
 This app, written in node.js, simply listens on a specified port (8080) and provides a simply JSON response from the /time endpoint. It also logs a simple message to the console each time a request is made.
 
