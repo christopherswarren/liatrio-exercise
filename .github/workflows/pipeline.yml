@@ -63,6 +63,8 @@ jobs:
           pwd
           ls -al
           cd ./terraform
+          pwd
+          ls -al
       - name: Terraform Init
         run: terraform init
       - name: Terraform Format
