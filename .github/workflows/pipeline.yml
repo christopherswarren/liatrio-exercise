@@ -15,6 +15,7 @@ env:
   azure-rg: csw-liatrio-exercise-rg
   aks-cluster: csw-liatrio-exercise-aks1
   azure-tenant: 7500411e-6146-4c36-8612-6f9390df3440
+  tf_actions_working_dir: $GITHUB_WORKSPACE/terraform
 
 jobs:
 
@@ -51,6 +52,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: ${{ env.tf_actions_working_dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
