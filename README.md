@@ -54,7 +54,7 @@ Once you've met the above prerequisites, you should be able to simply run the Gi
 
 Once the pipeline run is complete, it will let you know whether it was able to validate the deployment. If successful, you can manually validate by following the generated link in the validate content step
 
-![Follow this link]()
+![Follow this link](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/validation.png)
 
 # Components
 
