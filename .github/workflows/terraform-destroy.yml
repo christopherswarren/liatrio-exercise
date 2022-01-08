@@ -32,6 +32,10 @@ jobs:
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
+      - name: List inputs
+        run: | 
+          echo "Input 1: ${{github.events.inputs.confirm}}"
+          echo "Input 2: ${{github.events.inputs.message}}"
       - name: Terraform Destroy
         working-directory: ./terraform
         if: github.events.inputs.confirm == 'yes' && github.events.inputs.message == 'CONFIRM'
