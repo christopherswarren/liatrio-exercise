@@ -56,6 +56,16 @@ Once the pipeline run is complete, it will let you know whether it was able to v
 
 ![Follow this link](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/validation.png)
 
+## Cleanup
+
+Run the provided GitHub Actions Terraform Destroy pipeline. This kicks off a destroy plan via Terraform Cloud
+
+![Terraform Destroy Pipeline](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/tfdestroy.png)
+
+Alternatively, if you are using terraform locally, simply run
+
+`terraform destroy`
+
 # Components
 
 ## API app
