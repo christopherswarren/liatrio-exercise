@@ -51,7 +51,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: $GITHUB_WORKSPACE/terraform
+        working-directory: $GITHUB_WORKSPACE
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
         run: |
           pwd
           ls -al
-          cd ./terraform
+          cd terraform
           pwd
           ls -al
       - name: Terraform Init
