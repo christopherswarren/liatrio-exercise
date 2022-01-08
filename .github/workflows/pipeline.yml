@@ -102,7 +102,11 @@ jobs:
       - name: Apply Ingress
         run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
       - name: Get External IP
-        run: kubectl --namespace ingress-basic get services -o wide
+        run: |
+          kubectl --namespace ingress-basic get services -o wide
+          $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
+          write-host "::set-output name=externalip::$ingress.status.loadbalancer.ingress.ip"
+        pwsh:
 
   validate:
     needs: [deploy]
