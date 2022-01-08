@@ -92,7 +92,9 @@ jobs:
       run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
     - name: Wait for API to come online
       timeout-minutes: 1
-      run: ./check-endpoint.sh time-api-lb
+      run: |
+        chmod +x check-endpoint.sh
+        ./check-endpoint.sh time-api-lb
     - name: Apply Ingress
       run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
     - name: Get External IP
