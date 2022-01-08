@@ -42,7 +42,7 @@ To do so, you simply need an account, and a workspace configured for API trigger
 
 ![TF Cloud Team Token](https://github.com/whoha4242/liatrio-exercise/raw/main/attachments/TFCloudTeamToken.png)
 
-Using Terraform Cloud you'll also need to configure your variables in TF Cloud as documented in the included [Terraform README](terraform/readme.md)
+Using Terraform Cloud you'll also need to configure your variables in TF Cloud as documented in the included [Terraform README](https://github.com/whoha4242/liatrio-exercise/tree/main/terraform#readme)
 
 ## 3. Docker Hub Account
 
