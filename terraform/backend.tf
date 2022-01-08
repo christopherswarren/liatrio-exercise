@@ -1,6 +1,6 @@
 terraform {
-  backend = "remote" {
-    hostname = "app.terraform.io"
+  backend "remote" {
+    hostname     = "app.terraform.io"
     organization = "csw-liatrio-exercise"
 
     workspaces {
