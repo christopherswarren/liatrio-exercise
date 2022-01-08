@@ -106,7 +106,7 @@ jobs:
           kubectl --namespace ingress-basic get services -o wide
           $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
           write-host "::set-output name=externalip::$ingress.status.loadbalancer.ingress.ip"
-        pwsh:
+        shell: pwsh
 
   validate:
     needs: [deploy]
