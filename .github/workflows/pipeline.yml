@@ -105,7 +105,8 @@ jobs:
         run: |
           kubectl --namespace ingress-basic get services -o wide
           $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
-          write-host "::set-output name=externalip::$ingress.status.loadbalancer.ingress.ip"
+          $ip = $ingress.status.loadbalancer.ingress.ip
+          write-host "::set-output name=externalip::$ip"
         shell: pwsh
 
   validate:
@@ -114,5 +115,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: test
+    - name: List IP
       run: echo ${{needs.deploy.outputs.extip}}
+    - name: Validate content
+      run: |
+        $result = invoke-restmethod -Method get -Uri http://${{needs.deploy.outputs.extip}}/time
+        if ($result.message -eq "Automate all the things!") {
+          Write-Host "Deployment validation succeeded! We managed to [$($result.message)]" -foregroundcolor green -backgroundcolor darkgreen
+        }
+        else {
+          Write-Host "Deployment validation failed. We got back this response: [$($result.message)]" -foregroundcolor black -backgroundcolor darkred
+        }
+      shell: pwsh
