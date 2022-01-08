@@ -69,7 +69,7 @@ jobs:
         working-directory: ./terraform
         run: terraform plan
       - name: Terraform Apply
-        if: ${{github.ref == 'refs/heads/main' && github.event_name == 'push'}}
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         working-directory: ./terraform
         run: terraform apply -auto-approve
 
@@ -78,7 +78,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
+    outputs:
+      extip: ${{ steps.wait_on_api.outputs.externalip }}
+
+      steps:
     - uses: actions/checkout@v2
     - name: AZ Login
       run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
@@ -91,6 +94,7 @@ jobs:
     - name: Apply Deployment
       run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
     - name: Wait for API to come online
+      id: wait_on_api
       timeout-minutes: 1
       run: |
         chmod +x check-endpoint.sh
@@ -99,3 +103,12 @@ jobs:
       run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
     - name: Get External IP
       run: kubectl --namespace ingress-basic get services -o wide
+
+  validate:
+    needs: [deploy]
+
+    runs-on: ubuntu-latest
+
+    steps:
+  - name: test
+    run: echo ${{needs.deploy.outputs.extip}}

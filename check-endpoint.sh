@@ -8,3 +8,4 @@ while [ -z $external_ip ]; do
   [ -z "$external_ip" ] && sleep 3
 done
 echo 'End point ready:' && echo $external_ip
+echo "::set-output name=externalip::$external_ip"
