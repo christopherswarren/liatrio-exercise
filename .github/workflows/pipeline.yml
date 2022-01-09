@@ -19,7 +19,7 @@ env:
 
 jobs:
 
-  build_test_push:
+  build_test_scan_push:
 
     runs-on: ubuntu-latest
 
@@ -27,6 +27,23 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run Unit Tests
       run: npm install && npm test
+    - name: Generate Code Coverage
+      run: |
+        npm install -g nyc mocha
+        nyc --reporter cobertura --reporter html mocha test
+    - name: Code Coverage Summary
+      uses: irongut/CodeCoverageSummary@v1.2.0
+      with:
+        filename: coverage/cobertura-coverage.xml
+        badge: true
+        format: markdown
+        output: both
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: code-coverage-results.md
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
     - name: Container image scan
@@ -50,7 +67,7 @@ jobs:
       run: docker push ${{env.imagename}}:latest
 
   terraform:
-    needs: build_test_push
+    needs: build_test_scan_push
 
     name: "Terraform"
     runs-on: ubuntu-latest
@@ -79,7 +96,7 @@ jobs:
       run: terraform apply -auto-approve
 
   deploy:
-    needs: [build_test_push,terraform]
+    needs: [build_test_scan_push,terraform]
 
     runs-on: ubuntu-latest
 
