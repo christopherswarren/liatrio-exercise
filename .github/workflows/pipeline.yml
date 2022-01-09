@@ -30,12 +30,11 @@ jobs:
     - name: Generate Code Coverage
       run: |
         npm install -g nyc mocha
-        nyc --reporter cobertura mocha test
-        cp .nyc_output/*.json .nyc_output/coburtura.json
+        nyc --reporter cobertura --reporter html mocha test
     - name: Code Coverage Summary
       uses: irongut/CodeCoverageSummary@v1.2.0
       with:
-        filename: .nyc_output/coburtura.json
+        filename: coverage/cobertura-coverage.xml
         badge: true
         format: markdown
 
