@@ -28,7 +28,7 @@ jobs:
     - name: Run Unit Tests
       run: npm install && npm test
     - name: Generate Code Coverage
-      run: npm install -g nyc && nyc --reporter cobertura mocha test
+      run: npm install -g nyc mocha && nyc --reporter cobertura mocha test
     - name: Code Coverage Summary
       uses: irongut/CodeCoverageSummary@v1.2.0
 
