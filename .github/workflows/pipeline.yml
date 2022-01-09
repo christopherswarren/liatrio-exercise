@@ -69,9 +69,7 @@ jobs:
       working-directory: ./terraform
       run: terraform plan
     - name: Terraform Apply
-      # note that only CI or Pull Request merge will generate this push event on main branch
-      # UI manual trigger does not work
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       working-directory: ./terraform
       run: terraform apply -auto-approve
 
