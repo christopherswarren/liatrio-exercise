@@ -19,14 +19,17 @@ env:
 
 jobs:
 
-  build_test_push:
+  build_test_scan_push:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Run Unit Tests
-      run: npm install && npm test
+      run: npm install && npm test && nyc --reporter cobertura mocha test
+    - name: Code Coverage Summary
+      uses: irongut/CodeCoverageSummary@v1.2.0
+
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
     - name: Container image scan
@@ -50,7 +53,7 @@ jobs:
       run: docker push ${{env.imagename}}:latest
 
   terraform:
-    needs: build_test_push
+    needs: build_test_scan_push
 
     name: "Terraform"
     runs-on: ubuntu-latest
@@ -79,7 +82,7 @@ jobs:
       run: terraform apply -auto-approve
 
   deploy:
-    needs: [build_test_push,terraform]
+    needs: [build_test_scan_push,terraform]
 
     runs-on: ubuntu-latest
 
