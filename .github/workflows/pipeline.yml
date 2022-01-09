@@ -32,7 +32,7 @@ jobs:
     - name: Code Coverage Summary
       uses: irongut/CodeCoverageSummary@v1.2.0
       with:
-        filename: .nyc_outpu//processinfo\index.json
+        filename: .nyc_output/processinfo/index.json
         badge: true
         format: markdown
 
