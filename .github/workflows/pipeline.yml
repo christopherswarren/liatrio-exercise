@@ -9,7 +9,7 @@ on:
 
 env:
   imagename: whoha4242/liatrio-exercise
-  tag: 1.0.$GITHUB_RUN_ID
+  tag: 1.0.${{github.run_id}}
   dockeruser: whoha4242
   # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
   dockerpwd: ${{secrets.dockerpassword}}
@@ -32,7 +32,7 @@ jobs:
     - name: Container image scan
       uses: Azure/container-scan@v0.1
       with:
-        image-name: ${{env.imagename}}:1.0.$GITHUB_RUN_ID
+        image-name: ${{env.imagename}}:${{env.tag}}
         username: ${{env.dockeruser}}
         password: ${{env.dockerpwd}}
     # Tag and push image if main branch run
