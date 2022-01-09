@@ -29,14 +29,12 @@ jobs:
       run: npm install && npm test
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
-
     - name: Container image scan
       uses: Azure/container-scan@v0.1
       with:
-        image-name: ${{env.imagename}}:${{env.tag}}
+        image-name: ${{env.imagename}}:1.0.$GITHUB_RUN_ID
         username: ${{env.dockeruser}}
         password: ${{env.dockerpwd}}
-
     # Tag and push image if main branch run
     - name: Add latest tag
       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
