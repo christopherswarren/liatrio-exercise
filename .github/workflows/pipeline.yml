@@ -26,7 +26,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run Unit Tests
-      run: npm install && npm test && nyc --reporter cobertura mocha test
+      run: npm install && npm test
+    - name: Generate Code Coverage
+      run: nyc --reporter cobertura mocha test
     - name: Code Coverage Summary
       uses: irongut/CodeCoverageSummary@v1.2.0
 
