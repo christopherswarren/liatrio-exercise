@@ -96,6 +96,7 @@ jobs:
       run: terraform apply -auto-approve
 
   deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [build_test_scan_push,terraform]
 
     runs-on: ubuntu-latest
