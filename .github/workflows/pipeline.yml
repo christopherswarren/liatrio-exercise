@@ -117,7 +117,7 @@ jobs:
       - name: Generate Tokenized Kubernetes YAML
         run: |
           cp k8s-deployment.yml k8s-deployment-tokenized.yml
-          get-content k8s-deployment-tokenized.yml -replace ${{env.imagename}}:latest "#{imagename}#:#{tag}#" | set-content k8s-deployment-tokenized.yml -force
+          (get-content k8s-deployment-tokenized.yml) -replace "${{env.imagename}}:latest","#{imagename}#:#{tag}#" | set-content k8s-deployment-tokenized.yml -force
         shell: pwsh
       - name: Replace Tokens
         uses: cschleiden/replace-tokens@v1
