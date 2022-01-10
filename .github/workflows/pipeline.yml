@@ -124,7 +124,7 @@ jobs:
         with:
           files: '["**/k8s*.yml"]'
       - name: Apply Deployment
-        run: kubectl apply -f ./k8s-deployment.yml --namespace ingress-basic
+        run: kubectl apply -f ./k8s-deployment-tokenized.yml --namespace ingress-basic
       - name: Wait for API to come online
         timeout-minutes: 1
         run: |
