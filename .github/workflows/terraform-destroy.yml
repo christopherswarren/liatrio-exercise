@@ -1,42 +1,42 @@
-name: "Terraform Destroy"
+# name: "Terraform Destroy"
 
-on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        type: choice
-        required: true
-        description: Do you wish to run terraform destroy?
-        options: 
-        - ''
-        - 'no'
-        - 'yes'
-      message:
-        description: Only "CONFIRM" will result in running this destroy plan
-        required: true
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       confirm:
+#         type: choice
+#         required: true
+#         description: Do you wish to run terraform destroy?
+#         options: 
+#         - ''
+#         - 'no'
+#         - 'yes'
+#       message:
+#         description: Only "CONFIRM" will result in running this destroy plan
+#         required: true
 
-jobs:
-  terraform:
-    name: "Terraform Destroy"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      - name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init
-      - name: List inputs
-        run: | 
-          echo "Input 1: ${{github.event.inputs.confirm}}"
-          echo "Input 2: ${{github.event.inputs.message}}"
-      - name: Terraform Destroy
-        working-directory: ./terraform
-        if: ${{github.event.inputs.confirm == 'yes' && github.event.inputs.message == 'CONFIRM'}}
-        run: terraform destroy -auto-approve
+# jobs:
+#   terraform:
+#     name: "Terraform Destroy"
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         shell: bash
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v1
+#         with:
+#           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#       - name: Terraform Init
+#         working-directory: ./terraform
+#         run: terraform init
+#       - name: List inputs
+#         run: | 
+#           echo "Input 1: ${{github.event.inputs.confirm}}"
+#           echo "Input 2: ${{github.event.inputs.message}}"
+#       - name: Terraform Destroy
+#         working-directory: ./terraform
+#         if: ${{github.event.inputs.confirm == 'yes' && github.event.inputs.message == 'CONFIRM'}}
+#         run: terraform destroy -auto-approve
