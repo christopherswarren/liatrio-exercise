@@ -1,4 +1,4 @@
-name: Liatrio Exercise
+name: Build and Push
 
 on:
   workflow_dispatch:
