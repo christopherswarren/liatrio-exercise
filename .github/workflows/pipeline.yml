@@ -1,70 +1,70 @@
 name: Build and Push
 
 on:
-  workflow_dispatch: {}
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch: {}
 
-env:
-  imagename: whoha4242/liatrio-exercise
-  tag: 1.0.${{github.run_id}}
-  dockeruser: whoha4242
-  # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
-  dockerpwd: ${{secrets.dockerpassword}}
-  azure-rg: csw-liatrio-exercise-rg
-  aks-cluster: csw-liatrio-exercise-aks1
-  azure-tenant: 7500411e-6146-4c36-8612-6f9390df3440
+# env:
+#   imagename: whoha4242/liatrio-exercise
+#   tag: 1.0.${{github.run_id}}
+#   dockeruser: whoha4242
+#   # NOTE: You must include a secret in your repo's settings to contain your docker user's password or change docker auth methods
+#   dockerpwd: ${{secrets.dockerpassword}}
+#   azure-rg: csw-liatrio-exercise-rg
+#   aks-cluster: csw-liatrio-exercise-aks1
+#   azure-tenant: 7500411e-6146-4c36-8612-6f9390df3440
 
-jobs:
+# jobs:
 
-  build_test_scan_push:
+#   build_test_scan_push:
 
-    runs-on: ['self-hosted','ec2']
+#     runs-on: ['self-hosted','ec2']
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run Unit Tests
-      run: npm install && npm test
-    - name: Generate Code Coverage
-      run: |
-        npm install -g nyc mocha
-        nyc --reporter cobertura --reporter html mocha test
-    - name: Code Coverage Summary
-      uses: irongut/CodeCoverageSummary@v1.2.0
-      with:
-        filename: coverage/cobertura-coverage.xml
-        badge: true
-        format: markdown
-        output: both
-    - name: Add Coverage PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      if: github.event_name == 'pull_request'
-      with:
-        recreate: true
-        path: code-coverage-results.md
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
-    - name: Container image scan
-      uses: Azure/container-scan@v0.1
-      with:
-        image-name: ${{env.imagename}}:${{env.tag}}
-        username: ${{env.dockeruser}}
-        password: ${{env.dockerpwd}}
-    # Tag and push image if main branch run
-    - name: Add latest tag
-      if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
-      run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
-    - name: Docker Login
-      if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
-      run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
-    - name: Push the Docker image versioned tag
-      if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
-      run: docker push ${{env.imagename}}:${{env.tag}}
-    - name: Push the Docker image latest tag
-      if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
-      run: docker push ${{env.imagename}}:latest
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Run Unit Tests
+#       run: npm install && npm test
+#     - name: Generate Code Coverage
+#       run: |
+#         npm install -g nyc mocha
+#         nyc --reporter cobertura --reporter html mocha test
+#     - name: Code Coverage Summary
+#       uses: irongut/CodeCoverageSummary@v1.2.0
+#       with:
+#         filename: coverage/cobertura-coverage.xml
+#         badge: true
+#         format: markdown
+#         output: both
+#     - name: Add Coverage PR Comment
+#       uses: marocchino/sticky-pull-request-comment@v2
+#       if: github.event_name == 'pull_request'
+#       with:
+#         recreate: true
+#         path: code-coverage-results.md
+#     - name: Build the Docker image
+#       run: docker build . --file Dockerfile --tag ${{env.imagename}}:${{env.tag}}
+#     - name: Container image scan
+#       uses: Azure/container-scan@v0.1
+#       with:
+#         image-name: ${{env.imagename}}:${{env.tag}}
+#         username: ${{env.dockeruser}}
+#         password: ${{env.dockerpwd}}
+#     # Tag and push image if main branch run
+#     - name: Add latest tag
+#       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
+#       run: docker tag ${{env.imagename}}:${{env.tag}} ${{env.imagename}}:latest
+#     - name: Docker Login
+#       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
+#       run: docker login -u ${{env.dockeruser}} -p ${{env.dockerpwd}}
+#     - name: Push the Docker image versioned tag
+#       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
+#       run: docker push ${{env.imagename}}:${{env.tag}}
+#     - name: Push the Docker image latest tag
+#       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
+#       run: docker push ${{env.imagename}}:latest
 
 #   terraform:
 #     needs: build_test_scan_push
