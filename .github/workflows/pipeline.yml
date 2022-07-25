@@ -21,7 +21,7 @@ jobs:
 
   build_test_scan_push:
 
-    runs-on: ubuntu-latest
+    runs-on: ['self-hosted','ec2']
 
     steps:
     - uses: actions/checkout@v2
@@ -66,113 +66,113 @@ jobs:
       if: ${{github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
       run: docker push ${{env.imagename}}:latest
 
-  terraform:
-    needs: build_test_scan_push
+#   terraform:
+#     needs: build_test_scan_push
 
-    name: "Terraform"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-    - name: Terraform Init
-      working-directory: ./terraform
-      run: terraform init
-    - name: Terraform Format
-      working-directory: ./terraform
-      run: terraform fmt -check
-    - name: Terraform Plan
-      working-directory: ./terraform
-      run: terraform plan
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-      working-directory: ./terraform
-      run: terraform apply -auto-approve
+#     name: "Terraform"
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         shell: bash
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v2
+#     - name: Setup Terraform
+#       uses: hashicorp/setup-terraform@v1
+#       with:
+#         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#     - name: Terraform Init
+#       working-directory: ./terraform
+#       run: terraform init
+#     - name: Terraform Format
+#       working-directory: ./terraform
+#       run: terraform fmt -check
+#     - name: Terraform Plan
+#       working-directory: ./terraform
+#       run: terraform plan
+#     - name: Terraform Apply
+#       if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+#       working-directory: ./terraform
+#       run: terraform apply -auto-approve
 
-  deploy:
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [build_test_scan_push,terraform]
+#   deploy:
+#     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+#     needs: [build_test_scan_push,terraform]
 
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
 
-    outputs:
-      extip: ${{ steps.get_ext_ip.outputs.externalip }}
+#     outputs:
+#       extip: ${{ steps.get_ext_ip.outputs.externalip }}
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: AZ Login
-        run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
-      - name: Get AKS Credentials
-        run: az aks get-credentials --resource-group ${{env.azure-rg}} --name ${{env.aks-cluster}}
-      - name: Add helm repo
-        run: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-      - name: Install nginx ingress
-        run: helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --version 4.0.13 --namespace ingress-basic --create-namespace --set controller.replicaCount=2 --set controller.nodeSelector."kubernetes\.io/os"=linux
-      - name: Generate Tokenized Kubernetes YAML
-        run: |
-          cp k8s-deployment.yml k8s-deployment-tokenized.yml
-          (get-content k8s-deployment-tokenized.yml) -replace "${{env.imagename}}:latest","#{imagename}#:#{tag}#" | set-content k8s-deployment-tokenized.yml -force
-        shell: pwsh
-      - name: Replace Tokens
-        uses: cschleiden/replace-tokens@v1
-        with:
-          files: '["**/k8s*.yml"]'
-      - name: Apply Deployment
-        run: kubectl apply -f ./k8s-deployment-tokenized.yml --namespace ingress-basic
-      - name: Wait for API to come online
-        timeout-minutes: 1
-        run: |
-          chmod +x check-endpoint.sh
-          ./check-endpoint.sh time-api-lb
-      - name: Apply Ingress
-        run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
-      - name: Get External IP
-        id: get_ext_ip
-        run: |
-          kubectl --namespace ingress-basic get services -o wide
-          $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
-          $ip = $ingress.status.loadbalancer.ingress.ip
-          write-host "::set-output name=externalip::$ip"
-        shell: pwsh
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: AZ Login
+#         run: az login --service-principal -u ${{secrets.AZ_CLIENT_ID}} -p ${{secrets.AZ_CLIENT_SECRET}} --tenant ${{env.azure-tenant}}
+#       - name: Get AKS Credentials
+#         run: az aks get-credentials --resource-group ${{env.azure-rg}} --name ${{env.aks-cluster}}
+#       - name: Add helm repo
+#         run: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#       - name: Install nginx ingress
+#         run: helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --version 4.0.13 --namespace ingress-basic --create-namespace --set controller.replicaCount=2 --set controller.nodeSelector."kubernetes\.io/os"=linux
+#       - name: Generate Tokenized Kubernetes YAML
+#         run: |
+#           cp k8s-deployment.yml k8s-deployment-tokenized.yml
+#           (get-content k8s-deployment-tokenized.yml) -replace "${{env.imagename}}:latest","#{imagename}#:#{tag}#" | set-content k8s-deployment-tokenized.yml -force
+#         shell: pwsh
+#       - name: Replace Tokens
+#         uses: cschleiden/replace-tokens@v1
+#         with:
+#           files: '["**/k8s*.yml"]'
+#       - name: Apply Deployment
+#         run: kubectl apply -f ./k8s-deployment-tokenized.yml --namespace ingress-basic
+#       - name: Wait for API to come online
+#         timeout-minutes: 1
+#         run: |
+#           chmod +x check-endpoint.sh
+#           ./check-endpoint.sh time-api-lb
+#       - name: Apply Ingress
+#         run: kubectl apply -f ./k8s-ingress.yml --namespace ingress-basic
+#       - name: Get External IP
+#         id: get_ext_ip
+#         run: |
+#           kubectl --namespace ingress-basic get services -o wide
+#           $ingress = kubectl -n ingress-basic get svc nginx-ingress-ingress-nginx-controller -o json | convertfrom-json
+#           $ip = $ingress.status.loadbalancer.ingress.ip
+#           write-host "::set-output name=externalip::$ip"
+#         shell: pwsh
 
-  validate:
-    needs: [deploy]
+#   validate:
+#     needs: [deploy]
 
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: List IP
-      run: echo ${{needs.deploy.outputs.extip}}
-    - name: Validate content
-      run: |
-        $result = invoke-restmethod -Method get -Uri http://${{needs.deploy.outputs.extip}}/time
-        if ($result.message -eq "Automate all the things!") {
-          $result
-          Write-Host "Deployment validation succeeded! We managed to [$($result.message)]" -foregroundcolor green -backgroundcolor darkgreen
-          $art = @"
-         ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄  ▄ 
-        ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
-        ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌▐░▌
-        ▐░▌          ▐░▌       ▐░▌▐░▌          ▐░▌          ▐░▌          ▐░▌          ▐░▌          ▐░▌▐░▌
-        ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌       ▐░▌▐░▌          ▐░▌          ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌▐░▌
-        ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
-         ▀▀▀▀▀▀▀▀▀█░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░█▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀█░▌ ▀▀▀▀▀▀▀▀▀█░▌▐░▌▐░▌
-                  ▐░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░▌                    ▐░▌          ▐░▌ ▀  ▀ 
-         ▄▄▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄█░▌ ▄▄▄▄▄▄▄▄▄█░▌ ▄  ▄ 
-        ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
-         ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀  ▀ 
-        "@
-          Write-Host $art -foregroundcolor green -backgroundcolor darkgreen
-        }
-        else {
-          $result
-          Write-Host "Deployment validation failed. We got back this response: [$($result.message)]" -foregroundcolor black -backgroundcolor darkred
-          throw "Marking validation job as failed"
-        }
-      shell: pwsh
+#     steps:
+#     - name: List IP
+#       run: echo ${{needs.deploy.outputs.extip}}
+#     - name: Validate content
+#       run: |
+#         $result = invoke-restmethod -Method get -Uri http://${{needs.deploy.outputs.extip}}/time
+#         if ($result.message -eq "Automate all the things!") {
+#           $result
+#           Write-Host "Deployment validation succeeded! We managed to [$($result.message)]" -foregroundcolor green -backgroundcolor darkgreen
+#           $art = @"
+#          ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄  ▄ 
+#         ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
+#         ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌▐░▌
+#         ▐░▌          ▐░▌       ▐░▌▐░▌          ▐░▌          ▐░▌          ▐░▌          ▐░▌          ▐░▌▐░▌
+#         ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌       ▐░▌▐░▌          ▐░▌          ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌▐░▌
+#         ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
+#          ▀▀▀▀▀▀▀▀▀█░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░█▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀█░▌ ▀▀▀▀▀▀▀▀▀█░▌▐░▌▐░▌
+#                   ▐░▌▐░▌       ▐░▌▐░▌          ▐░▌          ▐░▌                    ▐░▌          ▐░▌ ▀  ▀ 
+#          ▄▄▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄█░▌ ▄▄▄▄▄▄▄▄▄█░▌ ▄  ▄ 
+#         ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌▐░▌
+#          ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀  ▀ 
+#         "@
+#           Write-Host $art -foregroundcolor green -backgroundcolor darkgreen
+#         }
+#         else {
+#           $result
+#           Write-Host "Deployment validation failed. We got back this response: [$($result.message)]" -foregroundcolor black -backgroundcolor darkred
+#           throw "Marking validation job as failed"
+#         }
+#       shell: pwsh
